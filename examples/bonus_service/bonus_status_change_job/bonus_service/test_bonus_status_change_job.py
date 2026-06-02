@@ -19,7 +19,7 @@ pytestmark = [
     allure.description(
         'Job/producer: подходящий клиент с бонусом к активации, публикация clientId в Portfolio.Bonus.StatusChange.'
     ),
-    allure.link('https://example.com/spec-redacted', name='Specification'),
+    allure.link('https://example.com/reward-ledger-demo-spec', name='Specification'),
     allure.severity('normal'),
     allure.tag(service_name),
     allure.tag('Kafka'),

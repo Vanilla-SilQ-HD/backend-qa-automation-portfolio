@@ -20,7 +20,7 @@ pytestmark = [
         'OperationService обрабатывает Portfolio.Operations.Cancel: переводит операцию '
         'в ошибочный статус и сохраняет reasonCode/message из Kafka-сообщения.'
     ),
-    allure.link('https://example.com/spec-redacted', name='Specification'),
+    allure.link('https://example.com/reward-ledger-demo-spec', name='Specification'),
     allure.severity('critical'),
     allure.tag(service_name),
     allure.tag('Kafka'),
@@ -28,7 +28,7 @@ pytestmark = [
 
 
 class TestPositive:
-    pytestmark = allure.story('Positive. Отмена P2PCreditBonus по Kafka-событию')
+    pytestmark = allure.story('Positive. Отмена RewardCreditBonus по Kafka-событию')
 
     @allure.title('Подготовка данных для тестов')
     @pytest.fixture(scope='class', autouse=True)
@@ -55,7 +55,7 @@ class TestPositive:
             operation = GenOperation(
                 client_id=self.client_id,
                 account_id=self.account_id,
-                operation_type_name='P2PCreditBonus',
+                operation_type_name='RewardCreditBonus',
                 operation_state_name='Created',
                 amount=10_500,
                 currency=9991,
@@ -75,7 +75,7 @@ class TestPositive:
                 operation_state_id=25,
                 operation_state_name='Error',
                 operation_type_id=26,
-                operation_type_name=getattr(self.operation_before.operation_type, 'Name', None) or 'P2PCreditBonus',
+                operation_type_name=getattr(self.operation_before.operation_type, 'Name', None) or 'RewardCreditBonus',
                 client_id=self.client_id,
                 account_id=self.account_id,
                 amount=operation.amount,

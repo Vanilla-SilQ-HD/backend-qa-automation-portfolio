@@ -28,7 +28,7 @@ pytestmark = [
         'OperationService обрабатывает успешную транзакцию AccountService: '
         'переводит бонусную операцию в CheckBalance и публикует Portfolio.Operations.Events.'
     ),
-    allure.link('https://example.com/spec-redacted', name='Specification'),
+    allure.link('https://example.com/reward-ledger-demo-spec', name='Specification'),
     allure.severity('critical'),
     allure.tag(service_name),
     allure.tag('Kafka'),
@@ -63,7 +63,7 @@ class TestPositive:
             operation = GenOperation(
                 client_id=self.client_id,
                 account_id=self.account_id,
-                operation_type_name='P2PCreditBonus',
+                operation_type_name='RewardCreditBonus',
                 operation_state_name='Created',
                 amount=self.amount,
                 currency=BONUS_CURRENCY_ID,

@@ -1,8 +1,8 @@
 # Backend QA Automation Portfolio
 
-Портфолио с примерами автотестов для backend-сервисов.
+Synthetic portfolio project with backend QA automation examples.
 
-В репозитории собраны обезличенные pytest/allure-тесты из рабочих задач: Kafka consumer/producer сценарии, REST API проверки, работа с БД через SQLAlchemy и e2e-сценарий между несколькими сервисами.
+Reward Ledger Demo is written from scratch to demonstrate common backend QA automation patterns: Kafka consumer/producer scenarios, REST API checks, SQLAlchemy database assertions and an event-driven end-to-end flow.
 
 ## Что показано
 
@@ -12,7 +12,7 @@
 - валидация бизнес-состояний в БД;
 - позитивные и негативные сценарии;
 - cleanup тестовых данных;
-- e2e-проверка начисления бонусов с участием Kafka, БД и history API.
+- e2e-проверка event-driven начисления reward units с участием Kafka, БД и reward activity API.
 
 ## Стек
 
@@ -27,11 +27,10 @@
 
 ## Структура
 
-- `examples/account_service` - тесты Account Service.
-- `examples/bonus_service` - тесты Bonus Service.
-- `examples/operation_service` - тесты Operation Service.
-- `examples/payment_gateway_adapter_service` - тесты Payment Gateway Adapter Service.
-- `examples/e2e` - e2e-сценарий.
+- `examples/account_service` - Member Ledger examples.
+- `examples/bonus_service` - Reward Ledger examples.
+- `examples/operation_service` - Reward Workflow examples.
+- `examples/e2e` - E2E Reward Ledger flow.
 - `templates/config_public.py` - пример безопасной конфигурации.
 - `MANIFEST.md` - список тестовых файлов.
 
@@ -41,10 +40,11 @@
 2. `examples/account_service/operations_events_negative_consumer/account_service/test_operations_events_consumer.py`
 3. `examples/bonus_service/operations_events_consumer/bonus_service/test_operations_events_consumer.py`
 4. `examples/bonus_service/bonus_accruals_api/bonus_service/test_bonus_accruals_get.py`
-5. `examples/payment_gateway_adapter_service/callback_payment_status/payment_gateway_adapter_service/test_callback_payment_status.py`
 
 ## Важно
 
-Это не standalone-проект для запуска, а портфолио с примерами кода. Реальные домены, доступы, внутренние ссылки, секреты и проектные идентификаторы удалены или заменены на нейтральные значения.
+Это не standalone-проект для запуска, а synthetic portfolio project с примерами кода для Reward Ledger Demo.
+
+This repository does not reproduce proprietary systems, names, schemas, tickets, production flows, credentials or internal infrastructure.
 
 Цель репозитория - показать стиль написания автотестов, декомпозицию сценариев, работу с асинхронными событиями и подход к проверке данных в backend-системах.

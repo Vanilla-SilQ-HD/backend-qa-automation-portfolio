@@ -31,7 +31,6 @@ class Account(Base):
     CreatedBy: Mapped[str] = mapped_column(String(64))
     ModifiedOn: Mapped[datetime] = mapped_column(DateTime(True))
     ModifiedBy: Mapped[str] = mapped_column(String(64))
-    MaskedPan: Mapped[Optional[str]] = mapped_column(String(16))
 
     client: Mapped['Client'] = relationship('Client', back_populates='accounts')
     created_system: Mapped['System'] = relationship('System', foreign_keys=[CreatedBy], viewonly=True)
@@ -52,7 +51,6 @@ class Account(Base):
         check_assert_that(self.ClientId, equal_to(client.id), 'Ошибка в ClientId')
         check_assert_that(self.TypeId, equal_to(1), 'Ошибка в TypeId')  # Кошелек
         check_assert_that(self.StatusId, equal_to(10), 'Ошибка в StatusId')  # В процессе оформления
-        check_assert_that(self.MaskedPan, none(), 'Ошибка в MaskedPan')
         check_assert_that(abs(self.CreatedOn - datetime_now()) < timedelta(minutes=5), 'Ошибка в CreatedOn')
         check_assert_that(self.CreatedBy, equal_to('srv.account'), 'Ошибка в CreatedBy')
         check_assert_that(abs(self.ModifiedOn - datetime_now()) < timedelta(minutes=5), 'Ошибка в ModifiedOn')
@@ -75,9 +73,8 @@ class Account(Base):
             'Ошибка в ModifiedOn'
         )
         check_assert_that(self.ModifiedBy, equal_to('srv.account'), 'Ошибка в ModifiedBy')
-        check_assert_that(self.MaskedPan, equal_to(client.pan), 'Ошибка в MaskedPan')
         check_assert_that(
-            self.is_equal(account_before, ignored=['StatusId', 'ModifiedOn', 'ModifiedBy', 'MaskedPan']),
+            self.is_equal(account_before, ignored=['StatusId', 'ModifiedOn', 'ModifiedBy']),
             'Некорректное изменение записи'
         )
         check_assert_that(len(self.status_journals), equal_to(1), 'Ошибка в status_journals')
@@ -89,7 +86,6 @@ class Account(Base):
         self.StatusId = 15  # Новый(Неактивный)
         self.ModifiedOn = client.one_account.modified_on
         self.ModifiedBy = 'srv.account'
-        self.MaskedPan = client.pan
         status_journal = StatusJournal()
         status_journal.set(status_id=self.StatusId)
         self.status_journals.append(status_journal)
@@ -127,7 +123,6 @@ class Account(Base):
         self.StatusId = 20
         self.CreatedOn = datetime_now()
         self.ModifiedOn = datetime_now()
-        self.MaskedPan = None
 
 
 class Balance(Base):
@@ -226,7 +221,7 @@ class Client(Base):
     )
 
     Id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True)
-    Msisdn: Mapped[str] = mapped_column(String(11))
+    ExternalUserRef: Mapped[str] = mapped_column(String(11))
     BranchId: Mapped[int] = mapped_column(Integer)
     ClientAccountId: Mapped[int] = mapped_column(Integer)
     StatusId: Mapped[int] = mapped_column(Integer)
@@ -278,7 +273,7 @@ class Client(Base):
         self.accounts = []
 
     def check_temporary(self, client: data_generator.Client):
-        check_assert_that(self.Msisdn, equal_to(client.msisdn), 'Ошибка в Msisdn')
+        check_assert_that(self.ExternalUserRef, equal_to(client.external_user_ref), 'Ошибка в ExternalUserRef')
         check_assert_that(self.BranchId, equal_to(client.branch_id), 'Ошибка в BranchId')
         check_assert_that(self.ClientAccountId, equal_to(client.esb_client_id), 'Ошибка в ClientAccountId')
         check_assert_that(self.StatusId, equal_to(10), 'Ошибка в StatusId')  # Активный
@@ -294,7 +289,7 @@ class Client(Base):
 
     def set_temporary(self, client: data_generator.Client):
         self.Id = client.id
-        self.Msisdn = client.msisdn
+        self.ExternalUserRef = client.external_user_ref
         self.BranchId = client.branch_id
         self.ClientAccountId = client.esb_client_id
         self.StatusId = 10  # Активный

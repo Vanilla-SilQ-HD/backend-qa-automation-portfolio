@@ -22,7 +22,7 @@ pytestmark = [
         'начисление бонусов во FrozenBalance бонусного счёта, проводка по счёту '
         'и публикация сообщения в Portfolio.Accounts.Transactions.'
     ),
-    allure.link('https://example.com/spec-redacted', name='Specification'),
+    allure.link('https://example.com/reward-ledger-demo-spec', name='Specification'),
     allure.severity('critical'),
     allure.tag(service_name),
     allure.tag('Kafka'),

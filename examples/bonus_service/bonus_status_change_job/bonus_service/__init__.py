@@ -11,7 +11,7 @@ from helpers.quartz import QuartzBaseDB
 service_name = 'BonusService'
 
 requests_session = HttpSession()
-requests_session.url = f'https://{config.k8s_host}/service/bonusservice/api/'
+requests_session.url = f'https://{config.demo_api_host}/service/bonusservice/api/'
 requests_session.verify = False
 requests_session.headers.update(
     {

@@ -14,7 +14,7 @@ from kafka_topics.internal import BaseTopic
 class Message(BasePydanticModel):
     """
     Producers: OperationService
-    Consumers: AccountService, BonusService, PaymentGatewayAdapter
+    Consumers: AccountService, BonusService, DemoPartnerAdapter
     """
     operationId: int
     extId: Optional[str] = None
@@ -25,7 +25,6 @@ class Message(BasePydanticModel):
     partnerOperationId: Optional[str] = None
     partnerOperationDate: Optional[str] = None
     eventTime: str
-    rrn: Optional[str] = None
     reasonCodeId: Optional[int] = None
     message: Optional[str] = None
     amount: Optional[int] = None
@@ -33,11 +32,9 @@ class Message(BasePydanticModel):
     fee: Optional[int] = None
     description: Optional[str] = None
     clientId: uuid_str
-    sbpBankId: Optional[str] = None
     precheckId: Optional[str] = None
     partnerOrderId: Optional[str] = None
-    msisdn: Optional[str] = None
-    phone: Optional[str] = None
+    externalUserRef: Optional[str] = None
     accountId: Optional[uuid_str] = None
     accountIdTo: Optional[uuid_str] = None
 
@@ -48,7 +45,7 @@ datetime_format = '%Y-%m-%dT%H:%M:%SZ'
 class PortfolioOperationsEventsTopic(BaseTopic):
     """
     Producers: OperationService
-    Consumers: AccountService, BonusService, PaymentGatewayAdapter
+    Consumers: AccountService, BonusService, DemoPartnerAdapter
 
     Status: bonus_exchange:
       10 - Created
@@ -60,7 +57,7 @@ class PortfolioOperationsEventsTopic(BaseTopic):
 
     def __init__(self, operation_id, operation_state_id, operation_state_name,
                  operation_type_id, operation_type_name, client_id, account_id,
-                 amount, currency, fee=0, description=None, msisdn=None,
+                 amount, currency, fee=0, description=None, external_user_ref=None,
                  event_time=None, reason_code_id=None, error_message=None):
         self.name = config.portfolio_operations_events_topic
         self._operation_id = operation_id
@@ -74,7 +71,7 @@ class PortfolioOperationsEventsTopic(BaseTopic):
         self._currency = currency
         self._fee = fee
         self._description = description
-        self._msisdn = msisdn
+        self._external_user_ref = external_user_ref
         self._event_time = event_time
         self._reason_code_id = reason_code_id
         self._error_message = error_message
@@ -94,7 +91,7 @@ class PortfolioOperationsEventsTopic(BaseTopic):
             'description': self._description,
             'clientId': str(self._client_id),
             'accountId': str(self._account_id) if self._account_id is not None else None,
-            'msisdn': self._msisdn,
+            'externalUserRef': self._external_user_ref,
         }
         if self._reason_code_id is not None:
             value['reasonCodeId'] = self._reason_code_id
@@ -152,4 +149,4 @@ class PortfolioOperationsEventsTopic(BaseTopic):
         check_assert_that(msg.currency, equal_to(self._currency), 'Ошибка в currency')
         check_assert_that(msg.fee, equal_to(self._fee), 'Ошибка в fee')
         check_assert_that(msg.description, equal_to(self._description), 'Ошибка в description')
-        check_assert_that(msg.msisdn, equal_to(self._msisdn), 'Ошибка в msisdn')
+        check_assert_that(msg.externalUserRef, equal_to(self._external_user_ref), 'Ошибка в external_user_ref')

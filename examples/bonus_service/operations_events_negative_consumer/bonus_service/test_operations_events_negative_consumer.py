@@ -20,8 +20,8 @@ AMOUNT_MAX = 9000
 
 BONUS_STATUS_ACTIVE = 1
 
-P2P_CREDIT_BONUS_TYPE_ID = 26
-P2P_CREDIT_BONUS_TYPE_NAME = "P2PCreditBonus"
+REWARD_CREDIT_BONUS_TYPE_ID = 26
+REWARD_CREDIT_BONUS_TYPE_NAME = "RewardCreditBonus"
 
 OPERATION_STATE_CHECK_BALANCE_ID = 11
 OPERATION_STATE_CHECK_BALANCE_NAME = "CheckBalance"
@@ -50,7 +50,7 @@ pytestmark = [
         "Проверка обработки BonusService negative-события Portfolio.Operations.Events: "
         "отмена списания бонусов, восстановление бонусного остатка и публикация Portfolio.Bonus.Operation."
     ),
-    allure.link("https://example.com/spec-redacted", name="Specification"),
+    allure.link("https://example.com/reward-ledger-demo-spec", name="Specification"),
     allure.severity("critical"),
     allure.tag(service_name),
     allure.tag("Kafka"),
@@ -87,7 +87,7 @@ class TestNegative:
             self.account_id = str(uuid4())
             self.operation_id = random.randint(1_000_000_000, 2_100_000_000)
             self.amount = random.randint(AMOUNT_MIN, AMOUNT_MAX)
-            self.msisdn = random.choice(config.contract_msisdns)
+            self.external_user_ref = random.choice(config.demo_user_refs)
 
             now = datetime.now(UTC).replace(microsecond=0)
             m = self.db.model
@@ -114,7 +114,7 @@ class TestNegative:
                     "account_id": self.account_id,
                     "operation_id": self.operation_id,
                     "amount": self.amount,
-                    "msisdn": self.msisdn,
+                    "externalUserRef": self.external_user_ref,
                     "rule_id": self.accrual_rule.RuleId,
                     "rule_currency_id": self.accrual_rule.CurrencyId,
                 },
@@ -159,15 +159,15 @@ class TestNegative:
                 operation_id=self.operation_id,
                 operation_state_id=OPERATION_STATE_CHECK_BALANCE_ID,
                 operation_state_name=OPERATION_STATE_CHECK_BALANCE_NAME,
-                operation_type_id=P2P_CREDIT_BONUS_TYPE_ID,
-                operation_type_name=P2P_CREDIT_BONUS_TYPE_NAME,
+                operation_type_id=REWARD_CREDIT_BONUS_TYPE_ID,
+                operation_type_name=REWARD_CREDIT_BONUS_TYPE_NAME,
                 client_id=self.client_id,
                 account_id=self.account_id,
                 amount=self.amount,
                 currency=BONUS_CURRENCY_ID,
                 fee=0,
                 description=BONUS_DESCRIPTION,
-                msisdn=self.msisdn,
+                external_user_ref=self.external_user_ref,
             )
             message, key, headers = topic.set_message()
             allure_attach(
@@ -268,15 +268,15 @@ class TestNegative:
                 operation_id=self.operation_id,
                 operation_state_id=OPERATION_STATE_ERROR_ID,
                 operation_state_name=OPERATION_STATE_ERROR_NAME,
-                operation_type_id=P2P_CREDIT_BONUS_TYPE_ID,
-                operation_type_name=P2P_CREDIT_BONUS_TYPE_NAME,
+                operation_type_id=REWARD_CREDIT_BONUS_TYPE_ID,
+                operation_type_name=REWARD_CREDIT_BONUS_TYPE_NAME,
                 client_id=self.client_id,
                 account_id=self.account_id,
                 amount=self.amount,
                 currency=BONUS_CURRENCY_ID,
                 fee=0,
                 description=BONUS_DESCRIPTION,
-                msisdn=self.msisdn,
+                external_user_ref=self.external_user_ref,
                 reason_code_id=REASON_CODE_ROLLBACK,
                 error_message=REASON_MESSAGE_ROLLBACK,
             )

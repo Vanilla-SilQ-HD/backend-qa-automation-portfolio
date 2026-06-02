@@ -11,7 +11,7 @@ import operation_service.db_model as db_model
 service_name = "OperationService"
 requests_session = HttpSession()
 
-requests_session.url = f"https://{config.k8s_host}/service/operationsservice/api/"
+requests_session.url = f"https://{config.demo_api_host}/service/operationsservice/api/"
 requests_session.verify = False
 requests_session.headers.update({"Content-Type": "application/json"})
 
@@ -100,26 +100,6 @@ class Db:
         self.session.add(operation_from_db)
         self.session.flush()
 
-        # Добавляем SbpData, если есть
-        if operation.sbp_data:
-            operation_from_db.sbp_data = db_model.SbpData(
-                OperationId=operation_from_db.Id,
-                RecipientFIO=operation.sbp_data.get("recipient_fio"),
-                SbpBankId=operation.sbp_data.get("sbp_bank_id"),
-                Phone=operation.sbp_data.get("phone"),
-                SbpTranId=operation.sbp_data.get("sbp_tran_id"),
-                CreatedOn=operation.created_on,
-                ModifiedOn=operation.modified_on,
-            )
-
         self.session.commit()
         self.session.refresh(operation_from_db)
         return operation_from_db
-
-    def get_active_qr_directories(self) -> list[db_model.QrDirectories]:
-        return (
-            self.session.query(db_model.QrDirectories)
-            .filter_by(IsActive=True)
-            .order_by(db_model.QrDirectories.Id)
-            .all()
-        )

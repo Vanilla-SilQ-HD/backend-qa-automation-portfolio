@@ -27,7 +27,7 @@ pytestmark = [
         'OperationService обрабатывает Portfolio.Bonus.Operation: переводит операцию '
         'к следующему этапу платежного процесса и публикует Portfolio.Operations.Events.'
     ),
-    allure.link('https://example.com/spec-redacted', name='Specification'),
+    allure.link('https://example.com/reward-ledger-demo-spec', name='Specification'),
     allure.severity('critical'),
     allure.tag(service_name),
     allure.tag('Kafka'),
@@ -62,7 +62,7 @@ class TestPositive:
             operation = GenOperation(
                 client_id=self.client_id,
                 account_id=self.account_id,
-                operation_type_name='P2PCreditBonus',
+                operation_type_name='RewardCreditBonus',
                 operation_state_name='CheckBalance',
                 amount=self.amount,
                 currency=BONUS_CURRENCY_ID,
@@ -152,7 +152,7 @@ class TestPositive:
         assert_that(self.operation_after.Amount, equal_to(self.amount), 'Сумма операции сохраняется')
 
     @allure.title('Опубликовано Portfolio.Operations.Events для платежного адаптера')
-    def test_operations_event_for_payment_gateway_published(self):
+    def test_operations_event_for_demo_partner_adapter_published(self):
         model = self.db.model
         operation = (
             self.db.session.query(model.Operation)
@@ -173,7 +173,7 @@ class TestPositive:
                 timeout=45,
                 time_shift=300,
             )
-            allure_attach(message, 'payment_gateway_operations_event')
+            allure_attach(message, 'demo_partner_adapter_operations_event')
 
         with allure.step('Проверяем сообщение через topic checker'):
             topic.check_message(message)

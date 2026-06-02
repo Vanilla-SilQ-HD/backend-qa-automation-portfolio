@@ -30,7 +30,7 @@ class Message(BasePydanticModel):
     fee: Optional[int] = None
     description: Optional[str] = None
     clientId: uuid_str
-    msisdn: Optional[str] = None
+    externalUserRef: Optional[str] = None
     accountId: Optional[uuid_str] = None
 
 

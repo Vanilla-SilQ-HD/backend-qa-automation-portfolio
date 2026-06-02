@@ -30,7 +30,7 @@ class BonusOperation(BasePydanticModel):
     clientId: str
     accountId: Optional[str] = None
     accountType: Optional[int] = None
-    msisdn: Optional[str] = None
+    externalUserRef: Optional[str] = None
     eventType: int
     eventTime: str
     amount: int

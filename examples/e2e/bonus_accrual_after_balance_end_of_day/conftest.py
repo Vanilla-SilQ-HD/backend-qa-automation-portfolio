@@ -84,7 +84,7 @@ class CustomXdistScheduler(LoadScopeScheduling):
     """
 
     def _split_scope(self, nodeid):
-        if nodeid.split('/')[0] in ['account_service', 'payment_provider_service']:
+        if nodeid.split('/')[0] in ['account_service', 'demo_partner_service']:
             return 'thread_1'
         elif nodeid.split('/')[0] in ['e2e']:
             return 'thread_2'
@@ -124,12 +124,12 @@ def redis():
 
 
 
-@allure.title('Добавление пароля для подписи PaymentProvider в мок-сервис')
+@allure.title('Добавление пароля для подписи DemoPartner в мок-сервис')
 @pytest.fixture(scope='session', autouse=True)
-def add_payment_provider_password():
+def add_demo_partner_shared_secret():
     from helpers.mock_service import send_tempdata
-    from config import payment_provider_password
-    send_tempdata(key='payment_provider_password', value=payment_provider_password)
+    from config import demo_partner_shared_secret
+    send_tempdata(key='demo_partner_shared_secret', value=demo_partner_shared_secret)
 
 
 @allure.title('Создание клиента в БД AccountService')

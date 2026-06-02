@@ -23,7 +23,7 @@ pytestmark = [
         'Асинхронная обработка Portfolio.Operations.Events (state=11 CheckBalance) в BonusService: '
         'списание бонусных пакетов при достаточном балансе и отмена операции при нехватке бонусов.'
     ),
-    allure.link('https://example.com/spec-redacted', name='Specification'),
+    allure.link('https://example.com/reward-ledger-demo-spec', name='Specification'),
     allure.severity('critical'),
     allure.tag(service_name),
     allure.tag('Kafka'),
@@ -50,7 +50,7 @@ class TestPositive:
             self.account_id = get_test_uuid()
             self.operation_id = random.randint(1_000_000_000, 2_100_000_000)
             self.amount = random.randint(1000, 9000)
-            self.msisdn = random.choice(config.contract_msisdns)
+            self.external_user_ref = random.choice(config.demo_user_refs)
         with allure.step('Получаем действующее правило начисления бонусов'):
             self.accrual_rule = self.db.get_active_accrual_rule(9991)  # Бонусы
             assert_that(self.accrual_rule, not_none(), 'Не найден действующий AccrualRule')
@@ -77,10 +77,10 @@ class TestPositive:
             topic = PortfolioOperationsEventsTopic(
                 operation_id=self.operation_id,
                 operation_state_id=11, operation_state_name='CheckBalance',
-                operation_type_id=26, operation_type_name='P2PCreditBonus',
+                operation_type_id=26, operation_type_name='RewardCreditBonus',
                 client_id=self.client_id, account_id=self.account_id,
                 amount=self.amount, currency=9991,
-                description='Пополнение с бонусного счета', msisdn=self.msisdn,
+                description='Пополнение с бонусного счета', external_user_ref=self.external_user_ref,
             )
             self.message, key, headers = topic.set_message()
             allure_attach(self.message, 'message')
@@ -191,7 +191,7 @@ class TestNegative:
             self.account_id = get_test_uuid()
             self.operation_id = random.randint(2_100_000_001, 2_500_000_000)
             self.amount = random.randint(4000, 9000)
-            self.msisdn = random.choice(config.contract_msisdns)
+            self.external_user_ref = random.choice(config.demo_user_refs)
         with allure.step('Получаем действующее правило начисления бонусов'):
             self.accrual_rule = self.db.get_active_accrual_rule(9991)  # Бонусы
             assert_that(self.accrual_rule, not_none(), 'Не найден действующий AccrualRule')
@@ -211,10 +211,10 @@ class TestNegative:
             topic = PortfolioOperationsEventsTopic(
                 operation_id=self.operation_id,
                 operation_state_id=11, operation_state_name='CheckBalance',
-                operation_type_id=26, operation_type_name='P2PCreditBonus',
+                operation_type_id=26, operation_type_name='RewardCreditBonus',
                 client_id=self.client_id, account_id=self.account_id,
                 amount=self.amount, currency=9991,
-                description='Пополнение с бонусного счета', msisdn=self.msisdn,
+                description='Пополнение с бонусного счета', external_user_ref=self.external_user_ref,
             )
             self.message, key, headers = topic.set_message()
             allure_attach(self.message, 'message')

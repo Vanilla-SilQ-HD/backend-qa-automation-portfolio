@@ -13,7 +13,7 @@ db_model = account_service.db_model
 service_name = 'AccountService'
 requests_session = HttpSession()
 
-requests_session.url = f'https://{config.k8s_host}/service/accountservice/api/'
+requests_session.url = f'https://{config.demo_api_host}/service/accountservice/api/'
 requests_session.verify = False
 requests_session.headers.update({'Content-Type': 'application/json'})
 
@@ -97,18 +97,18 @@ class Db(QuartzBaseDB):
         self.session.refresh(client_from_db)
         return client_from_db
 
-    def delete_clients_by_msisdn(self, msisdn):
-        clients = self.session.query(self.model.Client).filter_by(Msisdn=msisdn).all()
+    def delete_clients_by_external_user_ref(self, external_user_ref):
+        clients = self.session.query(self.model.Client).filter_by(ExternalUserRef=external_user_ref).all()
         for client in clients:
             self.session.delete(client)
         self.session.commit()
 
-    def delete_clients_by_contract_msisdns(self):
+    def delete_clients_by_demo_user_refs(self):
         """
         Удаление клиентов по номерам из ответа мока ContractControl.getContract
         """
         clients = self.session.query(self.model.Client)\
-            .filter(self.model.Client.Msisdn.in_(config.contract_msisdns)).all()
+            .filter(self.model.Client.ExternalUserRef.in_(config.demo_user_refs)).all()
         for client in clients:
             self.session.delete(client)
         self.session.commit()

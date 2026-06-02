@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from typing import Optional, List
 import uuid
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKeyConstraint, Index, Integer, PrimaryKeyConstraint, \
-    String, Text, UUID
+from sqlalchemy import BigInteger, DateTime, Float, ForeignKeyConstraint, Index, Integer, PrimaryKeyConstraint, \
+    String, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from helpers.db_base_model import Base
@@ -43,7 +43,6 @@ class Operation(Base):
 
     operation_state: Mapped['OperationState'] = relationship('OperationState', viewonly=True)
     operation_type: Mapped[Optional['OperationType']] = relationship('OperationType', viewonly=True)
-    sbp_data: Mapped[Optional['SbpData']] = relationship('SbpData', back_populates='operation', uselist=False)
 
 
 class ClientsAccountsData(Base):
@@ -59,7 +58,7 @@ class ClientsAccountsData(Base):
 
     AccountId: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True)
     ClientId: Mapped[str] = mapped_column(UUID(as_uuid=False))
-    Msisdn: Mapped[str] = mapped_column(String(11))
+    ExternalUserRef: Mapped[str] = mapped_column(String(11))
     ClientStatusId: Mapped[int] = mapped_column(Integer)
     AccountStatusId: Mapped[int] = mapped_column(Integer)
     AccountTypeId: Mapped[int] = mapped_column(Integer)
@@ -70,28 +69,13 @@ class ClientsAccountsData(Base):
     def set_value(self, client):
         self.AccountId = client.one_account.id
         self.ClientId = client.id
-        self.Msisdn = client.msisdn
+        self.ExternalUserRef = client.external_user_ref
         self.ClientStatusId = 10
         self.AccountStatusId = 20
         self.AccountTypeId = 3
         self.CurrencyId = 9991
         self.LevelId = 10
         self.ModifiedOn = datetime.now(timezone.utc)
-
-
-class QrDirectories(Base):
-    __tablename__ = 'QrDirectories'
-    __table_args__ = (
-        PrimaryKeyConstraint('Id', name='PK_QrDirectories'),
-    )
-
-    Id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    Code: Mapped[str] = mapped_column(String(20))
-    UrlPattern: Mapped[str] = mapped_column(String)
-    PatternType: Mapped[str] = mapped_column(String(50))
-    IsActive: Mapped[bool] = mapped_column(Boolean)
-    CreatedOn: Mapped[datetime] = mapped_column(DateTime(True))
-    ModifiedOn: Mapped[Optional[datetime]] = mapped_column(DateTime(True))
 
 
 class OperationState(Base):
@@ -124,17 +108,9 @@ class OperationType(Base):
     - 0: Authorize - авторизация
     - 5: Complete - завершение
     - 10: Purchase - покупка
-    - 11: POS Payment Debit - дебетная часть платежа через POS терминал
     - 15: Reverse - отмена операции
-    - 20: P2PTransfer - P2P перевод
-    - 25: P2PCredit - кредитная часть P2P
-    - 26: P2PCredit_BONUS - бонусная кредитная часть P2P с новым сектором
-    - 30: PurchaseByQR - покупка по QR коду
-    - 35: CreditByQR - кредит по QR коду
-    - 40: PayoutSBP - вывод через СБП
+    - 26: RewardCreditBonus - synthetic reward credit operation
     - 45: ME2METRANSFER - перевод ME2ME
-    - 50: DepositIn - перевод с карты на накопительный счет
-    - 51: DepositOut - перевод с накопительного счета на карту
     - 9999: Unknown - неизвестный тип операции
     """
     __tablename__ = 'OperationType'
@@ -147,30 +123,3 @@ class OperationType(Base):
     SectorId: Mapped[Optional[int]] = mapped_column(BigInteger)
     FeeProcent: Mapped[Optional[float]] = mapped_column(Float)
     LifePeriod: Mapped[Optional[str]] = mapped_column(String(500))
-
-
-class SbpData(Base):
-    """
-    Таблица SbpData - дополнительные данные для операций СБП.
-
-    Создается при обработке сообщения с operationStateId=17 (CheckSuccess).
-    Содержит информацию о получателе перевода по СБП.
-    """
-    __tablename__ = 'SbpData'
-    __table_args__ = (
-        ForeignKeyConstraint(['OperationId'], ['Operations.Id'], name='FK_SbpData_Operations'),
-        PrimaryKeyConstraint('OperationId', name='PK_SbpData'),
-    )
-
-    OperationId: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    RecipientFIO: Mapped[Optional[str]] = mapped_column(Text)
-    SbpBankId: Mapped[Optional[str]] = mapped_column(String(12))
-    Phone: Mapped[Optional[str]] = mapped_column(Text)
-    PrechekId: Mapped[Optional[int]] = mapped_column(BigInteger)  # Опечатка в БД: PrechekId вместо PrecheckId
-    QrcId: Mapped[Optional[str]] = mapped_column(String)
-    SbpTranId: Mapped[Optional[str]] = mapped_column(String)
-    Token: Mapped[Optional[str]] = mapped_column(String)
-    CreatedOn: Mapped[datetime] = mapped_column(DateTime(True))
-    ModifiedOn: Mapped[datetime] = mapped_column(DateTime(True))
-
-    operation: Mapped['Operation'] = relationship('Operation', back_populates='sbp_data', viewonly=True)
